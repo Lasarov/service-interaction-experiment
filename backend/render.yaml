@@ -1,0 +1,22 @@
+# Render.com deployment configuration
+# This file auto-configures the service when connected via GitHub
+
+services:
+  - type: web
+    name: service-interaction-experiment
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false          # Set manually in Render dashboard (secret)
+      - key: CLAUDE_MODEL
+        value: claude-sonnet-4-20250514
+      - key: MAX_TOKENS
+        value: "300"
+      - key: TEMPERATURE
+        value: "0.7"
+      - key: MAX_REQUESTS_PER_SESSION
+        value: "30"
+      - key: PYTHON_VERSION
+        value: "3.11.6"
