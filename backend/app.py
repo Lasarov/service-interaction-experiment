@@ -114,8 +114,14 @@ def get_session(session_id: str, condition: str, topic: str = "",
                  city: str = "", companion: str = "", purpose: str = "",
                  qualtrics_id: str = "") -> dict:
     """Retrieve or initialize a conversation session."""
-    # First: check if this exact session_id already exists
+    # First: check if this exact session_id already exists in memory
     if session_id in sessions:
+        return sessions[session_id]
+
+    # Safety net: reload from disk in case another process saved new data
+    _load_sessions()
+    if session_id in sessions:
+        logger.info(f"Session {session_id} found after disk reload")
         return sessions[session_id]
 
     # Second: check if this Qualtrics participant already has a session
