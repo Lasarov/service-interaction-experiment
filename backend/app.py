@@ -99,24 +99,51 @@ def _save_sessions():
 _load_sessions()
 
 
+def _find_existing_session_by_qualtrics_id(qualtrics_id: str) -> dict | None:
+    """If a Qualtrics participant already has a session, return it.
+    This prevents duplicate sessions when the JS initialises twice."""
+    if not qualtrics_id:
+        return None
+    for sid, session in sessions.items():
+        if session.get("qualtrics_id") == qualtrics_id and not session["completed"]:
+            return session
+    return None
+
+
 def get_session(session_id: str, condition: str, topic: str = "",
                  city: str = "", companion: str = "", purpose: str = "",
                  qualtrics_id: str = "") -> dict:
     """Retrieve or initialize a conversation session."""
-    if session_id not in sessions:
-        sessions[session_id] = {
-            "id": session_id,
-            "qualtrics_id": qualtrics_id,
-            "condition": condition,
-            "city": city,
-            "companion": companion,
-            "purpose": purpose,
-            "topic": topic,
-            "messages": [],
-            "created_at": datetime.utcnow().isoformat(),
-            "request_count": 0,
-            "completed": False,
-        }
+    # First: check if this exact session_id already exists
+    if session_id in sessions:
+        return sessions[session_id]
+
+    # Second: check if this Qualtrics participant already has a session
+    # (handles cases where the frontend creates a new session_id but
+    #  the same participant is still in the same conversation)
+    existing = _find_existing_session_by_qualtrics_id(qualtrics_id)
+    if existing:
+        logger.info(
+            f"Dedup: reusing session {existing['id']} for qualtrics_id={qualtrics_id} "
+            f"(new session_id={session_id} was discarded)"
+        )
+        return existing
+
+    # Third: create a brand new session
+    logger.info(f"New session: {session_id} | condition={condition} | qualtrics_id={qualtrics_id}")
+    sessions[session_id] = {
+        "id": session_id,
+        "qualtrics_id": qualtrics_id,
+        "condition": condition,
+        "city": city,
+        "companion": companion,
+        "purpose": purpose,
+        "topic": topic,
+        "messages": [],
+        "created_at": datetime.utcnow().isoformat(),
+        "request_count": 0,
+        "completed": False,
+    }
     return sessions[session_id]
 
 
@@ -190,27 +217,53 @@ def chat():
         # Build system prompt
         system_prompt = get_system_prompt(condition)
 
-        # Add context on first message (city, companion, purpose, topic)
+        # Always include guest context in the system prompt (not just first message)
+        # so Claude always knows the full situation on every request
+        s_city = session.get("city") or city
+        s_companion = session.get("companion") or companion
+        s_purpose = session.get("purpose") or purpose
+        s_topic = session.get("topic") or topic
+
+        context_parts = []
+        if s_city:
+            context_parts.append(
+                f"The hotel is located in {s_city}. All your recommendations "
+                f"must be specific to {s_city} — use real-sounding place names, "
+                f"neighborhoods, and local details appropriate for {s_city}."
+            )
+        if s_companion == "alone":
+            context_parts.append("The guest is travelling alone.")
+        elif s_companion == "family":
+            context_parts.append("The guest is travelling with their family.")
+        if s_purpose == "leisure":
+            context_parts.append("This is a leisure trip.")
+        elif s_purpose == "business":
+            context_parts.append("This is a business trip.")
+        if s_topic:
+            context_parts.append(f"The guest is interested in: {s_topic} recommendations.")
+        if context_parts:
+            system_prompt += "\n\nGUEST CONTEXT:\n" + "\n".join(context_parts)
+
+        # On the very first request, inject the initial greeting that the frontend
+        # already showed the participant, so Claude knows the conversation has started
+        # and does NOT generate a duplicate greeting.
         if session["request_count"] == 0:
-            context_parts = []
-            if city:
-                context_parts.append(
-                    f"The hotel is located in {city}. All your recommendations "
-                    f"must be specific to {city} — use real-sounding place names, "
-                    f"neighborhoods, and local details appropriate for {city}."
-                )
-            if companion == "alone":
-                context_parts.append("The guest is travelling alone.")
-            elif companion == "family":
-                context_parts.append("The guest is travelling with their family.")
-            if purpose == "leisure":
-                context_parts.append("This is a leisure trip.")
-            elif purpose == "business":
-                context_parts.append("This is a business trip.")
-            if topic:
-                context_parts.append(f"The guest is interested in: {topic} recommendations.")
-            if context_parts:
-                system_prompt += "\n\nGUEST CONTEXT:\n" + "\n".join(context_parts)
+            topic_names = {
+                "restaurant": "restaurant", "shopping": "shopping",
+                "nightlife": "nightlife", "museums": "museum and cultural",
+                "sightseeing": "sightseeing", "other": "general"
+            }
+            topic_label = topic_names.get(s_topic, s_topic) if s_topic else "local"
+            greeting = (
+                f"Welcome! I'm Emma, your receptionist here in {s_city or 'the hotel'}. "
+                f"I'd be happy to help you with {topic_label} recommendations. "
+                f"What are you looking for specifically?"
+            )
+            session["messages"].append({
+                "role": "assistant",
+                "content": greeting,
+                "timestamp": datetime.utcnow().isoformat()
+            })
 
         # Add user message to history
         session["messages"].append({

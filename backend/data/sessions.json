@@ -240,5 +240,99 @@
     "created_at": "2026-03-07T15:08:45.166845",
     "request_count": 4,
     "completed": true
+  },
+  "test_1772921824770_mk1j74nd3": {
+    "id": "test_1772921824770_mk1j74nd3",
+    "qualtrics_id": "",
+    "condition": "human",
+    "city": "London",
+    "companion": "alone",
+    "purpose": "leisure",
+    "topic": "shopping",
+    "messages": [
+      {
+        "role": "user",
+        "content": "i like cheese",
+        "timestamp": "2026-03-07T22:17:13.355259"
+      },
+      {
+        "role": "assistant",
+        "content": "Oh, wonderful! A fellow cheese lover! London has some absolutely fantastic cheese shops and experiences. \n\nAre you looking to buy some artisanal cheeses to take home, or would you prefer somewhere you can sit and enjoy a proper cheese tasting with wine? And do you have any particular types of cheese you're drawn to - maybe British farmhouse cheeses, or are you more adventurous with international varieties?",
+        "timestamp": "2026-03-07T22:17:17.015135"
+      },
+      {
+        "role": "user",
+        "content": "yes",
+        "timestamp": "2026-03-07T22:17:23.333052"
+      },
+      {
+        "role": "assistant",
+        "content": "I'm not quite sure which part you're saying yes to! *laughs* \n\nAre you interested in finding a place to sit and enjoy cheese with wine, or are you looking more for a shop where you can buy some special cheeses? And what's your timeframe like - are you thinking of going out this evening, or planning something for tomorrow?\n\nI just want to make sure I point you in the right direction for exactly what you're in the mood for!",
+        "timestamp": "2026-03-07T22:17:28.263711"
+      },
+      {
+        "role": "user",
+        "content": "cheese with wine",
+        "timestamp": "2026-03-07T22:17:38.330641"
+      },
+      {
+        "role": "assistant",
+        "content": "Perfect! For a lovely cheese and wine experience, I'd highly recommend The Cheese Bar on Camden Passage - it's about a 10-minute walk from here. They have an incredible selection of British and European cheeses, and their sommelier does beautiful wine pairings. The atmosphere is cozy and intimate, perfect for really savoring everything.\n\nThey do both guided tastings and you can also just order a personalized cheese board. Are you going solo or with someone? And are you thinking more of a casual evening or something a bit more special?",
+        "timestamp": "2026-03-07T22:17:42.362542"
+      },
+      {
+        "role": "user",
+        "content": "thats super",
+        "timestamp": "2026-03-07T22:17:48.081100"
+      },
+      {
+        "role": "assistant",
+        "content": "Wonderful! I'm so glad that sounds appealing to you. The Cheese Bar really is a gem - I've had several guests come back raving about their evening there.\n\nWould you like me to give them a call and make a reservation for you? They can get quite busy, especially in the evenings, so I'd be happy to secure you a table. What time were you thinking, and how many people should I book for?",
+        "timestamp": "2026-03-07T22:17:51.306476"
+      },
+      {
+        "role": "user",
+        "content": "yes",
+        "timestamp": "2026-03-07T22:18:00.398361"
+      },
+      {
+        "role": "assistant",
+        "content": "Excellent! I'll be happy to call them for you right now. Just need to know - what time would work best for you this evening, and how many people should I reserve the table for?\n\nThe Cheese Bar typically has availability from around 6 PM onwards, and I find 7 or 8 PM tends to be perfect timing for a leisurely cheese and wine experience.",
+        "timestamp": "2026-03-07T22:18:04.052401"
+      },
+      {
+        "role": "user",
+        "content": "1",
+        "timestamp": "2026-03-07T22:18:12.546580"
+      },
+      {
+        "role": "assistant",
+        "content": "Perfect! And what time would you prefer - are you thinking around 7 PM or 8 PM this evening?\n\nOnce you let me know the time, I'll call The Cheese Bar straight away and get you booked in for a table for one. They'll take wonderful care of you there!",
+        "timestamp": "2026-03-07T22:18:15.199438"
+      },
+      {
+        "role": "user",
+        "content": "7",
+        "timestamp": "2026-03-07T22:18:18.293695"
+      },
+      {
+        "role": "assistant",
+        "content": "Brilliant! So that's a table for one at The Cheese Bar on Camden Passage at 7 PM this evening. They'll set you up with a lovely selection of cheeses and wine pairings.\n\nWould you like me to arrange that reservation for you right now?",
+        "timestamp": "2026-03-07T22:18:21.067216"
+      },
+      {
+        "role": "user",
+        "content": "ja",
+        "timestamp": "2026-03-07T22:18:25.258562"
+      },
+      {
+        "role": "assistant",
+        "content": "Perfect! I'll call The Cheese Bar right now and book you that table for one at 7 PM this evening. You're going to have such a wonderful time - their cheese selection is truly exceptional and the wine pairings are spot on.\n\nI'll get that sorted for you immediately and confirm the reservation. Enjoy your cheese and wine adventure tonight!",
+        "timestamp": "2026-03-07T22:18:28.691184"
+      }
+    ],
+    "created_at": "2026-03-07T22:17:13.354840",
+    "request_count": 8,
+    "completed": true
   }
 }

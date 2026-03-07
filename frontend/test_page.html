@@ -244,7 +244,7 @@ function attachHandlers() {
                 document.getElementById("stepTopic").style.display = "none";
                 document.getElementById("chatWindow").style.display = "block";
                 startTimer();
-                var names = {restaurant:"restaurant",shopping:"shopping",nightlife:"nightlife",museums:"museum and cultural",sightseeing:"sightseeing",other:""};
+                var names = {restaurant:"restaurant",shopping:"shopping",nightlife:"nightlife",museums:"museum and cultural",sightseeing:"sightseeing",other:"general"};
                 addMessage("assistant", "Welcome! I'm Emma, your receptionist here in " + selectedCity + ". I'd be happy to help you with " + (names[selectedTopic]||selectedTopic) + " recommendations. What are you looking for specifically?");
                 document.getElementById("userInput").focus();
                 updateDebug();
@@ -293,7 +293,7 @@ function sendMessage() {
     .then(function(data) {
         document.getElementById("typingIndicator").style.display = "none";
         isWaitingForResponse = false;
-        if (data.error) { addMessage("assistant","I'm sorry, could you repeat that?"); }
+        if (data.error) { addMessage("assistant","Error from server: " + data.error); }
         else {
             addMessage("assistant", data.response);
             if (data.conversation_complete) { setTimeout(endConversation, 1500); return; }

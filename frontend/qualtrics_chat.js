@@ -16,6 +16,18 @@
 
 Qualtrics.SurveyEngine.addOnload(function () {
 
+    // ── PREVENT DOUBLE INITIALIZATION (3 layers) ──────
+    // Layer 1: window flag
+    if (window._serviceInteractionChatLoaded) return;
+    window._serviceInteractionChatLoaded = true;
+    // Layer 2: sessionStorage (survives script re-execution within same tab)
+    try {
+        if (sessionStorage.getItem("_expChatActive") === "1") return;
+        sessionStorage.setItem("_expChatActive", "1");
+    } catch(e) { /* sessionStorage may be blocked */ }
+    // Layer 3: DOM check (if chat elements already exist, skip)
+    if (document.getElementById("chatWindow")) return;
+
     // ── CONFIGURATION ─────────────────────────────────────
     var BACKEND_URL = "https://YOUR-BACKEND-URL.onrender.com";
     var TIME_LIMIT_SECONDS = 180;
@@ -267,7 +279,7 @@ Qualtrics.SurveyEngine.addOnload(function () {
                 document.getElementById("stepTopic").style.display = "none";
                 chatWindowEl.style.display = "block";
                 startTimer();
-                var topicNames = { restaurant:"restaurant", shopping:"shopping", nightlife:"nightlife", museums:"museum and cultural", sightseeing:"sightseeing", other:"" };
+                var topicNames = { restaurant:"restaurant", shopping:"shopping", nightlife:"nightlife", museums:"museum and cultural", sightseeing:"sightseeing", other:"general" };
                 var topicLabel = topicNames[selectedTopic] || selectedTopic;
                 addMessage("assistant",
                     "Welcome! I'm Emma, your receptionist here in " + selectedCity + ". " +
@@ -385,6 +397,9 @@ Qualtrics.SurveyEngine.addOnload(function () {
     // ── CONTINUE BUTTON ───────────────────────────────────
     continueBtnEl.addEventListener("click", function () {
         Qualtrics.SurveyEngine.setEmbeddedData("conversation_log", JSON.stringify(conversationLog));
+        // Clear guards so next survey attempt can initialize fresh
+        window._serviceInteractionChatLoaded = false;
+        try { sessionStorage.removeItem("_expChatActive"); } catch(e) {}
         that.showNextButton();
         that.clickNextButton();
     });
