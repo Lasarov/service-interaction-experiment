@@ -104,6 +104,12 @@ def _find_existing_session_by_qualtrics_id(qualtrics_id: str) -> dict | None:
     This prevents duplicate sessions when the JS initialises twice."""
     if not qualtrics_id:
         return None
+    # Don't match on unreplaced piped text or placeholder values
+    if "e://" in qualtrics_id or qualtrics_id.startswith("$"):
+        return None
+    # Only match real Qualtrics ResponseIDs (they start with "R_")
+    if not qualtrics_id.startswith("R_"):
+        return None
     for sid, session in sessions.items():
         if session.get("qualtrics_id") == qualtrics_id and not session["completed"]:
             return session

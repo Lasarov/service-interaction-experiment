@@ -16,17 +16,11 @@
 
 Qualtrics.SurveyEngine.addOnload(function () {
 
-    // ── PREVENT DOUBLE INITIALIZATION (3 layers) ──────
-    // Layer 1: window flag
+    // ── PREVENT DOUBLE INITIALIZATION ───────────────────
+    // Guard against Qualtrics firing addOnload more than once on the SAME page load.
+    // Uses a window flag (resets naturally on every new page/survey load).
     if (window._serviceInteractionChatLoaded) return;
     window._serviceInteractionChatLoaded = true;
-    // Layer 2: sessionStorage (survives script re-execution within same tab)
-    try {
-        if (sessionStorage.getItem("_expChatActive") === "1") return;
-        sessionStorage.setItem("_expChatActive", "1");
-    } catch(e) { /* sessionStorage may be blocked */ }
-    // Layer 3: DOM check (if chat elements already exist, skip)
-    if (document.getElementById("chatWindow")) return;
 
     // ── CONFIGURATION ─────────────────────────────────────
     var BACKEND_URL = "https://YOUR-BACKEND-URL.onrender.com";
@@ -34,7 +28,17 @@ Qualtrics.SurveyEngine.addOnload(function () {
 
     // ── READ CONDITION & QUALTRICS RESPONSE ID ─────────
     var condition = "${e://Field/condition}" || "human";
+    // Detect if Qualtrics piped text was NOT replaced (happens in Preview mode)
+    var _rawCondition = "${e://Field/condition}";
+    if (_rawCondition.indexOf("e://") !== -1) {
+        // Piped text not replaced — we're in Preview or test mode, use default
+        condition = "human";
+    }
     var qualtricsId = "${e://Field/ResponseID}" || "";
+    if (qualtricsId.indexOf("e://") !== -1) {
+        // Piped text not replaced — clear it so backend doesn't match old sessions
+        qualtricsId = "";
+    }
     var sessionId = "sess_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
     Qualtrics.SurveyEngine.setEmbeddedData("session_id", sessionId);
     Qualtrics.SurveyEngine.setEmbeddedData("condition_sign", condition);
@@ -397,9 +401,6 @@ Qualtrics.SurveyEngine.addOnload(function () {
     // ── CONTINUE BUTTON ───────────────────────────────────
     continueBtnEl.addEventListener("click", function () {
         Qualtrics.SurveyEngine.setEmbeddedData("conversation_log", JSON.stringify(conversationLog));
-        // Clear guards so next survey attempt can initialize fresh
-        window._serviceInteractionChatLoaded = false;
-        try { sessionStorage.removeItem("_expChatActive"); } catch(e) {}
         that.showNextButton();
         that.clickNextButton();
     });
